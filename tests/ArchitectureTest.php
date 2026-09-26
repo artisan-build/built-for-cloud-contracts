@@ -8,6 +8,7 @@ use ArtisanBuild\BuiltForCloudContracts\Console\AssertionPurpose;
 use ArtisanBuild\BuiltForCloudContracts\Console\AssertionVerifier;
 use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleKeyring;
 use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleRole;
+use ArtisanBuild\BuiltForCloudContracts\Mail\ManagedMail;
 use ArtisanBuild\BuiltForCloudContracts\Mcp\Classification;
 use ArtisanBuild\BuiltForCloudContracts\MetadataShape;
 use ArtisanBuild\BuiltForCloudContracts\OwnershipClaim;
@@ -16,7 +17,7 @@ use Tests\Support\SourceDeclarations;
 
 require_once __DIR__.'/Support/SourceDeclarations.php';
 
-it('contains exactly the ten public contract source classes', function (): void {
+it('contains exactly the eleven public contract source classes', function (): void {
     $sourceRoot = dirname(__DIR__).'/src';
     $files = [];
     $iterator = new RecursiveIteratorIterator(
@@ -42,6 +43,7 @@ it('contains exactly the ten public contract source classes', function (): void 
         'Console/AssertionVerifier.php',
         'Console/ConsoleKeyring.php',
         'Console/ConsoleRole.php',
+        'Mail/ManagedMail.php',
         'Mcp/Classification.php',
         'MetadataShape.php',
         'OwnershipClaim.php',
@@ -55,6 +57,7 @@ it('contains exactly the ten public contract source classes', function (): void 
         AssertionVerifier::class,
         ConsoleKeyring::class,
         ConsoleRole::class,
+        ManagedMail::class,
         Classification::class,
         MetadataShape::class,
         OwnershipClaim::class,
@@ -133,6 +136,19 @@ it('pins every user-defined public method, constant, and enum case', function ()
             'methods' => ['values'],
             'constants' => [],
             'cases' => ['Admin', 'Member'],
+        ],
+        ManagedMail::class => [
+            'methods' => ['isMessageSizeWithinLimit', 'isRecipientCountWithinLimit'],
+            'constants' => [
+                'ATTACHMENT_FIELDS',
+                'CONTRACT_VERSION',
+                'MAX_MESSAGE_BYTES',
+                'MAX_RECIPIENTS',
+                'PATH',
+                'PAYLOAD_FIELDS',
+                'RECIPIENT_FIELDS',
+            ],
+            'cases' => [],
         ],
         Classification::class => [
             'methods' => [],
