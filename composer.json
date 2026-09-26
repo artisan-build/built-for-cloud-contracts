@@ -1,0 +1,34 @@
+{
+    "name": "artisan-build/built-for-cloud-contracts",
+    "description": "Pure protocol contracts shared by Built for Cloud and Scalpels.",
+    "keywords": ["artisan-build", "built-for-cloud", "contracts", "scalpels"],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.27",
+        "pestphp/pest": "^4.0",
+        "phpstan/phpstan": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "ArtisanBuild\\BuiltForCloudContracts\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "lint": "pint",
+        "lint:test": "pint --test",
+        "stan": "phpstan analyse --memory-limit=512M"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
