@@ -170,16 +170,15 @@ it('pins every user-defined public method, constant, and enum case', function ()
         }
 
         foreach ($reflection->getReflectionConstants(ReflectionClassConstant::IS_PUBLIC) as $constant) {
-            if (! $constant->isEnumCase() && $constant->getDeclaringClass()->getName() === $class) {
+            if ($constant->getDeclaringClass()->getName() !== $class) {
+                continue;
+            }
+
+            if ($constant->isEnumCase()) {
+                $cases[] = $constant->getName();
+            } else {
                 $constants[] = $constant->getName();
             }
-        }
-
-        if ($reflection->isEnum()) {
-            $cases = array_map(
-                static fn (ReflectionEnumUnitCase $case): string => $case->getName(),
-                (new ReflectionEnum($class))->getCases(),
-            );
         }
 
         sort($methods);
