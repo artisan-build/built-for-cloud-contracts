@@ -21,6 +21,10 @@ it('contains exactly the ten public contract source classes', function (): void 
     );
 
     foreach ($iterator as $file) {
+        if (! $file instanceof SplFileInfo) {
+            continue;
+        }
+
         if ($file->isFile() && $file->getExtension() === 'php') {
             $files[] = str_replace($sourceRoot.'/', '', $file->getPathname());
         }
@@ -79,6 +83,10 @@ it('has a PHP-only runtime and no framework or runtime-service source dependenci
     );
 
     foreach ($iterator as $file) {
+        if (! $file instanceof SplFileInfo) {
+            continue;
+        }
+
         if ($file->isFile() && $file->getExtension() === 'php') {
             $source .= (string) file_get_contents($file->getPathname());
         }
@@ -88,6 +96,6 @@ it('has a PHP-only runtime and no framework or runtime-service source dependenci
         expect($source)->not->toContain($forbiddenNamespace);
     }
 
-    expect($source)->not->toMatch('/namespace\s+ArtisanBuild\\\\BuiltForCloud(?:\\\\|;)/')
-        ->not->toMatch('/\b(?:extends\s+Model|ServiceProvider|Route::|Migration)\b/');
+    expect($source)->not->toMatch('/namespace\s+ArtisanBuild\\\\BuiltForCloud(?:\\\\|;)/');
+    expect($source)->not->toMatch('/\b(?:extends\s+Model|ServiceProvider|Route::|Migration)\b/');
 });
