@@ -12,6 +12,9 @@ use ArtisanBuild\BuiltForCloudContracts\Mcp\Classification;
 use ArtisanBuild\BuiltForCloudContracts\MetadataShape;
 use ArtisanBuild\BuiltForCloudContracts\OwnershipClaim;
 use ArtisanBuild\BuiltForCloudContracts\Vitals\VitalsPayload;
+use Tests\Support\SourceDeclarations;
+
+require_once __DIR__.'/Support/SourceDeclarations.php';
 
 it('contains exactly the ten public contract source classes', function (): void {
     $sourceRoot = dirname(__DIR__).'/src';
@@ -45,7 +48,7 @@ it('contains exactly the ten public contract source classes', function (): void 
         'Vitals/VitalsPayload.php',
     ]);
 
-    $classes = [
+    $expectedDeclarations = [
         BuiltForCloud::class,
         AssertionBurn::class,
         AssertionPurpose::class,
@@ -58,13 +61,135 @@ it('contains exactly the ten public contract source classes', function (): void 
         VitalsPayload::class,
     ];
 
-    expect($classes)->toHaveCount(10);
+    $declarations = [];
 
-    foreach ($classes as $class) {
-        expect(class_exists($class) || enum_exists($class))->toBeTrue($class)
-            ->and((new ReflectionClass($class))->getNamespaceName())
-            ->toStartWith('ArtisanBuild\\BuiltForCloudContracts');
+    foreach ($files as $file) {
+        $declarations = [
+            ...$declarations,
+            ...SourceDeclarations::fromCode((string) file_get_contents($sourceRoot.'/'.$file)),
+        ];
     }
+
+    sort($declarations);
+
+    expect($declarations)->toBe($expectedDeclarations);
+});
+
+it('detects extra class-like declarations inside a known source file shape', function (): void {
+    $source = <<<'PHP'
+<?php
+
+namespace ArtisanBuild\BuiltForCloudContracts;
+
+final class BuiltForCloud {}
+interface ExtraContract {}
+trait ExtraBehavior {}
+enum ExtraVocabulary { case Added; }
+PHP;
+
+    expect(SourceDeclarations::fromCode($source))->toBe([
+        'ArtisanBuild\\BuiltForCloudContracts\\BuiltForCloud',
+        'ArtisanBuild\\BuiltForCloudContracts\\ExtraBehavior',
+        'ArtisanBuild\\BuiltForCloudContracts\\ExtraContract',
+        'ArtisanBuild\\BuiltForCloudContracts\\ExtraVocabulary',
+    ]);
+});
+
+it('pins every user-defined public method, constant, and enum case', function (): void {
+    $expected = [
+        BuiltForCloud::class => [
+            'methods' => [],
+            'constants' => ['API_VERSION'],
+            'cases' => [],
+        ],
+        AssertionBurn::class => [
+            'methods' => ['mintHash'],
+            'constants' => ['PRUNE_MARGIN_SECONDS'],
+            'cases' => [],
+        ],
+        AssertionPurpose::class => [
+            'methods' => [],
+            'constants' => [],
+            'cases' => ['ConsoleEntry', 'Mcp'],
+        ],
+        AssertionVerifier::class => [
+            'methods' => [],
+            'constants' => [
+                'HEADER',
+                'MAX_DISPLAY_LENGTH',
+                'MAX_IDENTITY_LENGTH',
+                'MAX_ID_LENGTH',
+                'MAX_TOKEN_LENGTH',
+                'STATE_DIGEST_PATTERN',
+            ],
+            'cases' => [],
+        ],
+        ConsoleKeyring::class => [
+            'methods' => ['isValidKeyId'],
+            'constants' => ['KEY_ID_PATTERN', 'PUBLIC_KEY_BYTES'],
+            'cases' => [],
+        ],
+        ConsoleRole::class => [
+            'methods' => ['values'],
+            'constants' => [],
+            'cases' => ['Admin', 'Member'],
+        ],
+        Classification::class => [
+            'methods' => [],
+            'constants' => [],
+            'cases' => ['Content', 'Metadata'],
+        ],
+        MetadataShape::class => [
+            'methods' => ['isConsoleKeyId', 'isSemver', 'isTimestamp', 'isToken'],
+            'constants' => ['CONSOLE_KEY_ID', 'SEMVER', 'TIMESTAMP', 'TOKEN'],
+            'cases' => [],
+        ],
+        OwnershipClaim::class => [
+            'methods' => ['hashToken'],
+            'constants' => [],
+            'cases' => [],
+        ],
+        VitalsPayload::class => [
+            'methods' => [],
+            'constants' => ['MAX_AGE_SECONDS', 'MAX_HEADLINE_MAGNITUDE', 'VERSION'],
+            'cases' => [],
+        ],
+    ];
+    $actual = [];
+
+    foreach (array_keys($expected) as $class) {
+        $reflection = new ReflectionClass($class);
+        $methods = [];
+        $constants = [];
+        $cases = [];
+
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->isUserDefined() && $method->getDeclaringClass()->getName() === $class) {
+                $methods[] = $method->getName();
+            }
+        }
+
+        foreach ($reflection->getReflectionConstants(ReflectionClassConstant::IS_PUBLIC) as $constant) {
+            if (! $constant->isEnumCase() && $constant->getDeclaringClass()->getName() === $class) {
+                $constants[] = $constant->getName();
+            }
+        }
+
+        if ($reflection->isEnum()) {
+            $cases = array_map(
+                static fn (ReflectionEnumUnitCase $case): string => $case->getName(),
+                (new ReflectionEnum($class))->getCases(),
+            );
+        }
+
+        sort($methods);
+        sort($constants);
+        sort($cases);
+
+        $actual[$class] = compact('methods', 'constants', 'cases');
+    }
+
+    expect($actual)->toBe($expected);
 });
 
 it('has a PHP-only runtime and no framework or runtime-service source dependencies', function (): void {

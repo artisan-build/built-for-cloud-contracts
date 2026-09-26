@@ -22,9 +22,9 @@ It does not provide routes, migrations, service providers, models, or runtime se
 `BuiltForCloud::API_VERSION` is the shared protocol version. It is separate from the Built for Cloud
 package's release version, which remains owned by that package and is not exposed here.
 
-The package contains no persistence, cryptography, token parsing or verification, payload assembly,
-framework integration, or other runtime services. Consumers own those behaviors and depend on this
-package only for the protocol values and pure operations listed above.
+The package contains no persistence, signing, key handling, PASETO parsing, signature verification,
+payload assembly, framework integration, or other runtime services. Consumers own those behaviors and
+depend on this package only for the protocol values and pure operations listed above.
 
 ## Requirements
 

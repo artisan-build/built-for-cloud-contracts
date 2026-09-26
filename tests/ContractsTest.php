@@ -90,6 +90,7 @@ it('uses the exact length-delimited burn identity', function (): void {
 
     expect(AssertionBurn::PRUNE_MARGIN_SECONDS)->toBe(60)
         ->and(AssertionBurn::mintHash($issuer, $mintId))->toBe(hash('sha256', $encoded))
+        ->and(AssertionBurn::mintHash('iss', 'mid'))->toBe('33ea3e6f245152a0fac47257c8b21408c4fe744b07b5eed5043c40af1c7da682')
         ->and(AssertionBurn::mintHash('ab', 'c'))->not->toBe(AssertionBurn::mintHash('a', 'bc'));
 });
 
