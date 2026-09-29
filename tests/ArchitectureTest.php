@@ -10,6 +10,7 @@ use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleKeyring;
 use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleRole;
 use ArtisanBuild\BuiltForCloudContracts\Mail\ManagedMail;
 use ArtisanBuild\BuiltForCloudContracts\Mcp\Classification;
+use ArtisanBuild\BuiltForCloudContracts\Mcp\Effect;
 use ArtisanBuild\BuiltForCloudContracts\MetadataShape;
 use ArtisanBuild\BuiltForCloudContracts\OwnershipClaim;
 use ArtisanBuild\BuiltForCloudContracts\Vitals\VitalsPayload;
@@ -17,7 +18,7 @@ use Tests\Support\SourceDeclarations;
 
 require_once __DIR__.'/Support/SourceDeclarations.php';
 
-it('contains exactly the eleven public contract source classes', function (): void {
+it('contains exactly the twelve public contract source classes', function (): void {
     $sourceRoot = dirname(__DIR__).'/src';
     $files = [];
     $iterator = new RecursiveIteratorIterator(
@@ -45,6 +46,7 @@ it('contains exactly the eleven public contract source classes', function (): vo
         'Console/ConsoleRole.php',
         'Mail/ManagedMail.php',
         'Mcp/Classification.php',
+        'Mcp/Effect.php',
         'MetadataShape.php',
         'OwnershipClaim.php',
         'Vitals/VitalsPayload.php',
@@ -59,6 +61,7 @@ it('contains exactly the eleven public contract source classes', function (): vo
         ConsoleRole::class,
         ManagedMail::class,
         Classification::class,
+        Effect::class,
         MetadataShape::class,
         OwnershipClaim::class,
         VitalsPayload::class,
@@ -154,6 +157,11 @@ it('pins every user-defined public method, constant, and enum case', function ()
             'methods' => [],
             'constants' => [],
             'cases' => ['Content', 'Metadata'],
+        ],
+        Effect::class => [
+            'methods' => [],
+            'constants' => [],
+            'cases' => ['Destructive', 'Read', 'Write'],
         ],
         MetadataShape::class => [
             'methods' => ['isConsoleKeyId', 'isSemver', 'isTimestamp', 'isToken'],
