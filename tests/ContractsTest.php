@@ -9,6 +9,7 @@ use ArtisanBuild\BuiltForCloudContracts\Console\AssertionVerifier;
 use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleKeyring;
 use ArtisanBuild\BuiltForCloudContracts\Console\ConsoleRole;
 use ArtisanBuild\BuiltForCloudContracts\Mcp\Classification;
+use ArtisanBuild\BuiltForCloudContracts\Mcp\Effect;
 use ArtisanBuild\BuiltForCloudContracts\MetadataShape;
 use ArtisanBuild\BuiltForCloudContracts\OwnershipClaim;
 use ArtisanBuild\BuiltForCloudContracts\Vitals\VitalsPayload;
@@ -28,6 +29,19 @@ it('pins the complete classification vocabulary in order', function (): void {
     expect($cases)->toBe([
         ['Metadata', 'metadata'],
         ['Content', 'content'],
+    ]);
+});
+
+it('pins the complete effect vocabulary in order', function (): void {
+    $cases = array_map(
+        static fn (Effect $case): array => [$case->name, $case->value],
+        Effect::cases(),
+    );
+
+    expect($cases)->toBe([
+        ['Read', 'read'],
+        ['Write', 'write'],
+        ['Destructive', 'destructive'],
     ]);
 });
 
