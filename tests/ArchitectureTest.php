@@ -12,13 +12,16 @@ use ArtisanBuild\BuiltForCloudContracts\Mail\ManagedMail;
 use ArtisanBuild\BuiltForCloudContracts\Mcp\Classification;
 use ArtisanBuild\BuiltForCloudContracts\Mcp\Effect;
 use ArtisanBuild\BuiltForCloudContracts\MetadataShape;
+use ArtisanBuild\BuiltForCloudContracts\OutboundPayload;
 use ArtisanBuild\BuiltForCloudContracts\OwnershipClaim;
+use ArtisanBuild\BuiltForCloudContracts\PayloadDisposition;
+use ArtisanBuild\BuiltForCloudContracts\PayloadFilter;
 use ArtisanBuild\BuiltForCloudContracts\Vitals\VitalsPayload;
 use Tests\Support\SourceDeclarations;
 
 require_once __DIR__.'/Support/SourceDeclarations.php';
 
-it('contains exactly the twelve public contract source classes', function (): void {
+it('contains exactly the fifteen public contract source declarations', function (): void {
     $sourceRoot = dirname(__DIR__).'/src';
     $files = [];
     $iterator = new RecursiveIteratorIterator(
@@ -48,7 +51,10 @@ it('contains exactly the twelve public contract source classes', function (): vo
         'Mcp/Classification.php',
         'Mcp/Effect.php',
         'MetadataShape.php',
+        'OutboundPayload.php',
         'OwnershipClaim.php',
+        'PayloadDisposition.php',
+        'PayloadFilter.php',
         'Vitals/VitalsPayload.php',
     ]);
 
@@ -63,7 +69,10 @@ it('contains exactly the twelve public contract source classes', function (): vo
         Classification::class,
         Effect::class,
         MetadataShape::class,
+        OutboundPayload::class,
         OwnershipClaim::class,
+        PayloadDisposition::class,
+        PayloadFilter::class,
         VitalsPayload::class,
     ];
 
@@ -168,8 +177,23 @@ it('pins every user-defined public method, constant, and enum case', function ()
             'constants' => ['CONSOLE_KEY_ID', 'SEMVER', 'TIMESTAMP', 'TOKEN'],
             'cases' => [],
         ],
+        OutboundPayload::class => [
+            'methods' => ['__construct'],
+            'constants' => [],
+            'cases' => [],
+        ],
         OwnershipClaim::class => [
             'methods' => ['hashToken'],
+            'constants' => [],
+            'cases' => [],
+        ],
+        PayloadDisposition::class => [
+            'methods' => [],
+            'constants' => [],
+            'cases' => ['Deliverable', 'Droppable'],
+        ],
+        PayloadFilter::class => [
+            'methods' => ['filter'],
             'constants' => [],
             'cases' => [],
         ],
@@ -213,6 +237,15 @@ it('pins every user-defined public method, constant, and enum case', function ()
     }
 
     expect($actual)->toBe($expected);
+});
+
+it('pins the outbound payload public properties', function (): void {
+    $properties = array_map(
+        static fn (ReflectionProperty $property): string => $property->getName(),
+        (new ReflectionClass(OutboundPayload::class))->getProperties(ReflectionProperty::IS_PUBLIC),
+    );
+
+    expect($properties)->toBe(['product', 'kind', 'schemaVersion', 'disposition', 'data', 'attributes']);
 });
 
 it('has a PHP-only runtime and no framework or runtime-service source dependencies', function (): void {
