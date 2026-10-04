@@ -25,9 +25,9 @@ no app shell, routes, migrations, service provider surfaces, models, or runtime 
 - No `composer ready`. Add `composer audit` to CI. It is cheap and the fleet lacks it.
 
 ## CI (merge gate for Mode A)
-- `.github/workflows/tests.yml`: PHP 8.4 and 8.5, with a `prefer-lowest` lane (the "tests (lowest deps)" lane, per
+- `.github/workflows/tests.yml`: PHP 8.5, with a `prefer-lowest` lane (the "tests (lowest deps)" lane, per
   brain playbooks/lowest-deps-lane-red.md) running pest, plus phpstan, pint --test, and composer audit.
-- Branch protection on `main`: require the CI checks (use the exact matrix context names, e.g. `tests (8.4)`), after the first green run.
+- Branch protection on `main`: require the CI checks (use the exact matrix context names, e.g. `tests (8.5)`), after the first green run.
 
 ## Dependencies
 - PHP ^8.4. Prefer ZERO runtime dependencies. If a Laravel component is truly needed, require the narrowest
